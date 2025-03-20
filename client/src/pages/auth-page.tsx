@@ -86,7 +86,7 @@ export default function AuthPage() {
 
   const onLoginSubmit = (data: LoginFormValues) => {
     // Bypassing login logic for testing purposes
-    navigate("/dashboard");
+    navigate("/");
   };
 
   const onRegisterSubmit = (data: RegisterFormValues) => {
