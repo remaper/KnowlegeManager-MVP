@@ -44,9 +44,8 @@ const formSchema = z.object({
   category: z.string().optional(),
   tags: z.string().optional(),
   generateMetadata: z.boolean().default(true),
-  file: z.custom<File>((val) => val instanceof File, {
-    message: "File is required"
-  }),
+  // We're not validating the file here since we handle it manually
+  file: z.any().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,35 +67,42 @@ export default function DocumentUploadModal({ isOpen, onClose }: DocumentUploadM
 
   const uploadMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      const formData = new FormData();
-      formData.append("file", data.file);
-      
-      if (data.title) {
-        formData.append("title", data.title);
+      try {
+        const formData = new FormData();
+        formData.append("file", data.file);
+        
+        if (data.title) {
+          formData.append("title", data.title);
+        }
+        
+        if (data.category) {
+          formData.append("category", data.category);
+        }
+        
+        if (data.tags) {
+          formData.append("tags", data.tags);
+        }
+        
+        formData.append("generateMetadata", data.generateMetadata.toString());
+        
+        console.log("Uploading file:", data.file.name);
+        
+        const response = await fetch("/api/documents", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || "Failed to upload document");
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Document upload error:", error);
+        throw error;
       }
-      
-      if (data.category) {
-        formData.append("category", data.category);
-      }
-      
-      if (data.tags) {
-        formData.append("tags", data.tags);
-      }
-      
-      formData.append("generateMetadata", data.generateMetadata.toString());
-      
-      const response = await fetch("/api/documents", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to upload document");
-      }
-      
-      return await response.json();
     },
     onSuccess: () => {
       toast({
@@ -122,7 +128,23 @@ export default function DocumentUploadModal({ isOpen, onClose }: DocumentUploadM
   };
 
   const onSubmit = (data: FormValues) => {
-    uploadMutation.mutate(data);
+    console.log("Form submit, data:", data);
+    if (selectedFile) {
+      try {
+        uploadMutation.mutate({
+          ...data,
+          file: selectedFile
+        });
+      } catch (error) {
+        console.error("Error in onSubmit:", error);
+      }
+    } else {
+      toast({
+        title: "No file selected",
+        description: "Please select a file to upload",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
