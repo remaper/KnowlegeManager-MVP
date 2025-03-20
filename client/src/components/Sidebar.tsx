@@ -83,15 +83,15 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {sidebarItems.map((item) => (
               <li key={item.path}>
                 <Link href={item.path}>
-                  <a 
+                  <div 
                     className={cn(
-                      "flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100",
+                      "flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer",
                       location === item.path && "bg-primary-50 border-l-3 border-primary-600"
                     )}
                   >
                     <span className="mr-3 text-lg">{item.icon}</span>
                     <span>{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </li>
             ))}
@@ -110,12 +110,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           ) : recentDocuments.length > 0 ? (
             recentDocuments.map((doc) => (
               <Link key={doc.id} href={`/documents/${doc.id}`}>
-                <a className="block px-6 py-2 hover:bg-gray-100">
+                <div className="block px-6 py-2 hover:bg-gray-100 cursor-pointer">
                   <div className="flex items-center">
                     <FileText className="mr-3 h-4 w-4 text-gray-400" />
                     <span className="text-sm truncate">{doc.title}</span>
                   </div>
-                </a>
+                </div>
               </Link>
             ))
           ) : (
@@ -128,10 +128,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <div className="p-4 border-t">
           <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
             <Link href="/settings">
-              <a className="flex items-center text-gray-700">
+              <div className="flex items-center text-gray-700 w-full">
                 <Settings className="mr-3 h-4 w-4" />
                 <span>{t("app.settings")}</span>
-              </a>
+              </div>
             </Link>
           </Button>
           <Button 

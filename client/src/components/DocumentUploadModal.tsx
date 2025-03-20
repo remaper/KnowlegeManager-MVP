@@ -44,7 +44,9 @@ const formSchema = z.object({
   category: z.string().optional(),
   tags: z.string().optional(),
   generateMetadata: z.boolean().default(true),
-  file: z.instanceof(File, { message: "File is required" }),
+  file: z.custom<File>((val) => val instanceof File, {
+    message: "File is required"
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
