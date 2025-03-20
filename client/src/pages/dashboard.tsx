@@ -71,7 +71,7 @@ export default function Dashboard() {
       source: link.sourceDocumentId.toString(),
       target: link.targetDocumentId.toString(),
       type: link.linkType,
-      strength: link.strength,
+      strength: link.strength || undefined,
     }));
   
   return (

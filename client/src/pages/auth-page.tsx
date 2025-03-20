@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 import { insertUserSchema } from "@shared/schema";
 import { useLocation } from "wouter";
+import LanguageToggle from "@/components/LanguageToggle";
 
 import {
   Card,
@@ -52,6 +54,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const { user, loginMutation, registerMutation } = useAuth();
+  const { t } = useLanguage();
   const [, navigate] = useLocation();
 
   // Redirect if already logged in
@@ -96,6 +99,10 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
+      
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <Card className="w-full">
           <CardHeader className="space-y-1">
@@ -103,10 +110,10 @@ export default function AuthPage() {
               <div className="w-10 h-10 bg-primary-600 rounded-md flex items-center justify-center">
                 <Brain className="h-6 w-6 text-white" />
               </div>
-              <CardTitle className="text-2xl font-bold">KnowledgeGraph</CardTitle>
+              <CardTitle className="text-2xl font-bold">{t("app.name")}</CardTitle>
             </div>
             <CardDescription>
-              Sign in to your account or create a new one
+              {activeTab === "login" ? t("auth.loginSubtitle") : t("auth.registerSubtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,8 +124,8 @@ export default function AuthPage() {
               className="w-full"
             >
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
+                <TabsTrigger value="login">{t("auth.login")}</TabsTrigger>
+                <TabsTrigger value="register">{t("auth.register")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
@@ -132,7 +139,7 @@ export default function AuthPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t("auth.email")}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="your.email@example.com"
@@ -149,7 +156,7 @@ export default function AuthPage() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel>{t("auth.password")}</FormLabel>
                           <FormControl>
                             <Input type="password" {...field} />
                           </FormControl>
@@ -162,7 +169,9 @@ export default function AuthPage() {
                       className="w-full"
                       disabled={loginMutation.isPending}
                     >
-                      {loginMutation.isPending ? "Logging in..." : "Login"}
+                      {loginMutation.isPending 
+                        ? (t("auth.login") + "...") 
+                        : t("auth.login")}
                     </Button>
                   </form>
                 </Form>
@@ -179,7 +188,7 @@ export default function AuthPage() {
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>{t("auth.username")}</FormLabel>
                           <FormControl>
                             <Input placeholder="username" {...field} />
                           </FormControl>
@@ -192,7 +201,7 @@ export default function AuthPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t("auth.email")}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="your.email@example.com"
@@ -209,7 +218,7 @@ export default function AuthPage() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel>{t("auth.password")}</FormLabel>
                           <FormControl>
                             <Input type="password" {...field} />
                           </FormControl>
@@ -222,7 +231,9 @@ export default function AuthPage() {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
+                          <FormLabel>
+                            {t("auth.password") + " " + (t("auth.login") === "Login" ? "Confirmation" : "확인")}
+                          </FormLabel>
                           <FormControl>
                             <Input type="password" {...field} />
                           </FormControl>
@@ -235,7 +246,9 @@ export default function AuthPage() {
                       className="w-full"
                       disabled={registerMutation.isPending}
                     >
-                      {registerMutation.isPending ? "Creating Account..." : "Register"}
+                      {registerMutation.isPending 
+                        ? (t("auth.register") + "...") 
+                        : t("auth.register")}
                     </Button>
                   </form>
                 </Form>
@@ -246,22 +259,22 @@ export default function AuthPage() {
             <p className="text-sm text-gray-500">
               {activeTab === "login" ? (
                 <>
-                  Don't have an account?{" "}
+                  {t("auth.login") === "Login" ? "Don't have an account?" : "계정이 없으신가요?"}{" "}
                   <button
                     onClick={() => setActiveTab("register")}
                     className="text-primary-600 hover:underline"
                   >
-                    Register
+                    {t("auth.register")}
                   </button>
                 </>
               ) : (
                 <>
-                  Already have an account?{" "}
+                  {t("auth.login") === "Login" ? "Already have an account?" : "이미 계정이 있으신가요?"}{" "}
                   <button
                     onClick={() => setActiveTab("login")}
                     className="text-primary-600 hover:underline"
                   >
-                    Login
+                    {t("auth.login")}
                   </button>
                 </>
               )}
@@ -272,10 +285,10 @@ export default function AuthPage() {
         <div className="hidden md:flex flex-col items-center justify-center space-y-6 py-8">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold text-gray-900">
-              Organize Your Knowledge
+              {t("auth.heroTitle")}
             </h2>
             <p className="text-xl text-gray-600 max-w-md">
-              Discover connections, insights, and knowledge with our powerful semantic network platform
+              {t("auth.heroSubtitle")}
             </p>
           </div>
           
@@ -285,8 +298,14 @@ export default function AuthPage() {
                 <BookOpenText className="h-6 w-6 text-primary-700" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Document Management</h3>
-                <p className="text-gray-600">Upload, organize, and find your documents with AI-powered metadata.</p>
+                <h3 className="font-medium text-gray-900">
+                  {t("auth.login") === "Login" ? "Document Management" : "문서 관리"}
+                </h3>
+                <p className="text-gray-600">
+                  {t("auth.login") === "Login" 
+                    ? "Upload, organize, and find your documents with AI-powered metadata."
+                    : "AI 기반 메타데이터로 문서를 업로드, 정리 및 검색하세요."}
+                </p>
               </div>
             </div>
             
@@ -295,8 +314,14 @@ export default function AuthPage() {
                 <Network className="h-6 w-6 text-secondary-700" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Semantic Network</h3>
-                <p className="text-gray-600">Visualize connections between your documents and concepts.</p>
+                <h3 className="font-medium text-gray-900">
+                  {t("sidebar.semantic")}
+                </h3>
+                <p className="text-gray-600">
+                  {t("auth.login") === "Login" 
+                    ? "Visualize connections between your documents and concepts."
+                    : "문서와 개념 간의 연결을 시각화하세요."}
+                </p>
               </div>
             </div>
             
@@ -305,8 +330,14 @@ export default function AuthPage() {
                 <Brain className="h-6 w-6 text-amber-700" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Intelligent Recommendations</h3>
-                <p className="text-gray-600">Get personalized suggestions based on your knowledge graph.</p>
+                <h3 className="font-medium text-gray-900">
+                  {t("auth.login") === "Login" ? "Intelligent Recommendations" : "지능형 추천"}
+                </h3>
+                <p className="text-gray-600">
+                  {t("auth.login") === "Login" 
+                    ? "Get personalized suggestions based on your knowledge graph."
+                    : "지식 그래프를 기반으로 개인화된 추천을 받아보세요."}
+                </p>
               </div>
             </div>
           </div>

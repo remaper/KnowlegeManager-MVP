@@ -14,7 +14,7 @@ interface Link {
   source: string;
   target: string;
   type?: string;
-  strength?: number;
+  strength?: number | null;
 }
 
 interface SemanticNetworkGraphProps {
