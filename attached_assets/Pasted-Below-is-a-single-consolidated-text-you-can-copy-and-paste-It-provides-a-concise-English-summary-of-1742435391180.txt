@@ -1,0 +1,104 @@
+Below is a single consolidated text you can copy and paste. It provides a concise English summary of the web service MVP structure along with example prompts. Adapt or expand as needed:
+
+---
+
+**MVP Structure & Example Prompts (English Summary)**
+
+1. **User Login & Registration**  
+Purpose: Allow users to register an account and log in.
+
+```
+[Sign Up Request]
+- userName: string
+- email: string
+- password: string
+
+[Login Request]
+- email: string
+- password: string
+```
+
+2. **Main Dashboard**  
+Purpose: Display personalized information such as recent documents, priority items, and recommended content.
+
+```
+[Dashboard Request]
+- userId: string
+- recentUserActivity: object
+```
+Response: Personalized document recommendations, relevant tags, current tasks/areas of interest.
+
+3. **Document Management**  
+Purpose: Upload files, auto-generate metadata using LLM, and manage existing documents.
+
+```
+[Upload Document]
+- userId: string
+- file: file/binary
+- title: string (optional)
+- category: string (optional)
+- tags: array[string] (optional)
+
+[Fetch Documents]
+- userId: string
+- query: string (optional)
+- filter: object (optional)
+- sort: string (optional)
+
+[Edit Metadata]
+- documentId: string
+- updatedMetadata: { key: value, ... }
+```
+
+4. **Document Detail & Semantic Network**  
+Purpose: View detailed metadata, references (links/backlinks), and a semantic graph of related documents/notes.
+
+```
+[Document Detail Request]
+- documentId: string
+
+[Add/Edit Link]
+- documentId: string
+- linkedDocumentId: string
+- linkType: string (e.g. citation, reference)
+```
+Response: Full metadata, link/backlink info, recommended related documents, notes/highlights.
+
+5. **Ontology Management**  
+Purpose: Build and maintain an ontology (concept map) from the semantic network for indexing and dynamic updates.
+
+```
+[Ontology Update]
+- userId: string
+- ontologyId: string (optional)
+- structure: { concept: relationships: [...], ... }
+```
+Response: Updated ontology with version info and concept-relationship map.
+
+6. **Priority & Recommendation**  
+Purpose: Provide context-based prioritization and recommended content for the user’s current tasks or interests.
+
+```
+[Priority Recommendation]
+- userId: string
+- currentProjectInfo: object (optional)
+- recentActivityLog: object (optional)
+```
+Response: Recommended documents, tags, and potential workflow hints.
+
+7. **Admin Page (Optional)**  
+Purpose: Manage users, system resources, data logs, and other administrative tasks.
+
+```
+[Admin Request]
+- actionType: string (userManagement, logs, etc.)
+- parameters: { ... }
+```
+
+---
+
+**Implementation Notes**  
+- **LLM Integration**: Automatically generate document summaries, keywords, and tags.  
+- **Graph/DB Design**: Maintain references, notes, and highlights as separate entities in a bidirectional graph.  
+- **Security & Permissions**: Control user/file access; consider SSO/OAuth if needed.  
+- **Visualization**: Use a suitable library (e.g. D3.js) for interactive semantic network views.  
