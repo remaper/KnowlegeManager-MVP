@@ -1,5 +1,6 @@
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
 import { 
   LayoutDashboard, 
@@ -24,6 +25,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
+  const { t } = useLanguage();
 
   const { data: documents, isLoading: isLoadingDocuments } = useQuery<Document[]>({
     queryKey: ["/api/documents"],
@@ -33,11 +35,11 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const recentDocuments = documents?.slice(0, 3) || [];
 
   const sidebarItems = [
-    { path: "/", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { path: "/documents", label: "Documents", icon: <FileText className="h-5 w-5" /> },
-    { path: "/semantic-network", label: "Semantic Network", icon: <Network className="h-5 w-5" /> },
-    { path: "/ontology", label: "Ontology", icon: <Braces className="h-5 w-5" /> },
-    { path: "/recommendations", label: "Recommendations", icon: <Star className="h-5 w-5" /> },
+    { path: "/", label: t("sidebar.dashboard"), icon: <LayoutDashboard className="h-5 w-5" /> },
+    { path: "/documents", label: t("sidebar.documents"), icon: <FileText className="h-5 w-5" /> },
+    { path: "/semantic-network", label: t("sidebar.semantic"), icon: <Network className="h-5 w-5" /> },
+    { path: "/ontology", label: t("sidebar.ontology"), icon: <Braces className="h-5 w-5" /> },
+    { path: "/recommendations", label: t("sidebar.recommendations"), icon: <Star className="h-5 w-5" /> },
   ];
 
   const handleLogout = () => {
@@ -57,7 +59,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div className="w-8 h-8 bg-primary-600 rounded-md flex items-center justify-center">
               <Network className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-semibold text-gray-800">KnowledgeGraph</h1>
+            <h1 className="text-xl font-semibold text-gray-800">{t("app.name")}</h1>
           </div>
         </div>
         
@@ -97,7 +99,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           
           <div className="mt-4 px-6 py-2">
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Recently Viewed
+              {t("dashboard.recentDocuments")}
             </h3>
           </div>
           
@@ -118,7 +120,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             ))
           ) : (
             <div className="px-6 py-2 text-sm text-gray-500">
-              No recent documents
+              {t("dashboard.noDocuments")}
             </div>
           )}
         </nav>
@@ -128,7 +130,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <Link href="/settings">
               <a className="flex items-center text-gray-700">
                 <Settings className="mr-3 h-4 w-4" />
-                <span>Settings</span>
+                <span>{t("app.settings")}</span>
               </a>
             </Link>
           </Button>
@@ -140,7 +142,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             disabled={logoutMutation.isPending}
           >
             <LogOut className="mr-3 h-4 w-4" />
-            <span>{logoutMutation.isPending ? "Logging out..." : "Log out"}</span>
+            <span>{logoutMutation.isPending ? "Logging out..." : t("app.logout")}</span>
           </Button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 import Layout from "@/components/Layout";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentDocuments from "@/components/dashboard/RecentDocuments";
@@ -15,6 +16,7 @@ import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [, navigate] = useLocation();
   
   const { data: documents, isLoading: isLoadingDocuments } = useQuery<Document[]>({
@@ -76,13 +78,15 @@ export default function Dashboard() {
     <Layout>
       {/* Dashboard header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Hello, {user?.username}</h1>
-        <p className="text-gray-600 mt-1">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {t("dashboard.welcome")}, {user?.username}
+        </h1>
+        <p className="text-gray-600 mt-1">{format(new Date(), language === 'ko' ? 'yyyy년 MM월 dd일 EEEE' : "EEEE, MMMM d, yyyy")}</p>
         
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Documents</h3>
+              <h3 className="text-sm font-medium text-gray-500">{t("sidebar.documents")}</h3>
               <span className="text-2xl font-semibold text-gray-900">
                 {isLoadingDocuments ? (
                   <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -94,7 +98,7 @@ export default function Dashboard() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Linked Concepts</h3>
+              <h3 className="text-sm font-medium text-gray-500">{language === 'ko' ? '연결된 개념' : 'Linked Concepts'}</h3>
               <span className="text-2xl font-semibold text-gray-900">
                 {isLoadingLinks ? (
                   <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -106,7 +110,7 @@ export default function Dashboard() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Active Projects</h3>
+              <h3 className="text-sm font-medium text-gray-500">{language === 'ko' ? '활성 프로젝트' : 'Active Projects'}</h3>
               <span className="text-2xl font-semibold text-gray-900">
                 {/* Will be implemented with project functionality */}
                 {Math.min(documents?.length || 0, 3)}
@@ -128,12 +132,12 @@ export default function Dashboard() {
           {/* Interactive Semantic Network Preview */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Semantic Network</h2>
+              <h2 className="text-lg font-semibold">{t("sidebar.semantic")}</h2>
               <button 
                 className="text-primary-600 text-sm hover:underline"
                 onClick={() => navigate("/semantic-network")}
               >
-                Explore full graph
+                {language === 'ko' ? '전체 그래프 탐색' : 'Explore full graph'}
               </button>
             </div>
             
