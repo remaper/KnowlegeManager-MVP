@@ -45,7 +45,7 @@ import {
 export default function SemanticNetwork() {
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [linkTypeFilter, setLinkTypeFilter] = useState<string[]>([]);
   const [minStrength, setMinStrength] = useState(1);
   const [maxNodes, setMaxNodes] = useState(50);
@@ -101,9 +101,7 @@ export default function SemanticNetwork() {
       ? doc.title.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
       
-    const matchesCategory = selectedCategory 
-      ? doc.category === selectedCategory 
-      : true;
+    const matchesCategory = selectedCategory === "all" || doc.category === selectedCategory;
       
     return matchesSearch && matchesCategory;
   });
@@ -203,14 +201,14 @@ export default function SemanticNetwork() {
               <div>
                 <Label htmlFor="category">Category</Label>
                 <Select
-                  value={selectedCategory || ""}
-                  onValueChange={(value) => setSelectedCategory(value || null)}
+                  value={selectedCategory}
+                  onValueChange={(value) => setSelectedCategory(value as string)}
                 >
                   <SelectTrigger id="category" className="mt-1">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -300,7 +298,7 @@ export default function SemanticNetwork() {
                 className="w-full"
                 onClick={() => {
                   setSearchQuery("");
-                  setSelectedCategory(null);
+                  setSelectedCategory("all");
                   setLinkTypeFilter([]);
                   setMinStrength(1);
                   setMaxNodes(50);

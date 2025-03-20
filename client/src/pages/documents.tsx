@@ -122,9 +122,7 @@ export default function Documents() {
         (doc.summary && doc.summary.toLowerCase().includes(searchQuery.toLowerCase()))
       : true;
       
-    const matchesCategory = selectedCategory 
-      ? doc.category === selectedCategory 
-      : true;
+    const matchesCategory = selectedCategory === "all" || selectedCategory === null || doc.category === selectedCategory;
       
     return matchesSearch && matchesCategory;
   });
@@ -167,7 +165,7 @@ export default function Documents() {
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
