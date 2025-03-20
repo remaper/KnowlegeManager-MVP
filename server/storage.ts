@@ -425,3 +425,38 @@ export class MemStorage implements IStorage {
 }
 
 export const storage = new MemStorage();
+
+// Load seed data function
+export async function loadSeedData() {
+  const seedData = await import('./seed-data.json');
+  
+  // Load users
+  for (const user of seedData.users) {
+    storage.users.set(user.id, user);
+    storage.currentIds.users = Math.max(storage.currentIds.users, user.id + 1);
+  }
+  
+  // Load documents
+  for (const doc of seedData.documents) {
+    storage.documents.set(doc.id, doc);
+    storage.currentIds.documents = Math.max(storage.currentIds.documents, doc.id + 1);
+  }
+  
+  // Load tags
+  for (const tag of seedData.tags) {
+    storage.tags.set(tag.id, tag);
+    storage.currentIds.tags = Math.max(storage.currentIds.tags, tag.id + 1);
+  }
+  
+  // Load document tags
+  for (const docTag of seedData.documentTags) {
+    storage.documentTags.set(docTag.id, docTag);
+    storage.currentIds.documentTags = Math.max(storage.currentIds.documentTags, docTag.id + 1);
+  }
+  
+  // Load semantic links
+  for (const link of seedData.semanticLinks) {
+    storage.semanticLinks.set(link.id, link);
+    storage.currentIds.semanticLinks = Math.max(storage.currentIds.semanticLinks, link.id + 1);
+  }
+}

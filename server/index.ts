@@ -4,6 +4,9 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.use(express.json());
+
+// Load seed data on startup
+await loadSeedData();
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
