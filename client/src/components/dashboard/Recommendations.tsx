@@ -27,6 +27,11 @@ export default function Recommendations() {
         return <BookOpen className="h-5 w-5 text-green-600" />;
       case "task":
         return <LightbulbIcon className="h-5 w-5 text-purple-600" />;
+      case "info":
+        return <LightbulbIcon className="h-5 w-5 text-blue-600" />;
+      case "error":
+      case "quota_error":
+        return <LightbulbIcon className="h-5 w-5 text-amber-600" />;
       default:
         return <FileText className="h-5 w-5 text-primary-600" />;
     }
@@ -40,6 +45,12 @@ export default function Recommendations() {
         return "bg-green-100";
       case "task":
         return "bg-purple-100";
+      case "info":
+        return "bg-blue-100";
+      case "error":
+        return "bg-red-100";
+      case "quota_error":
+        return "bg-amber-100";
       default:
         return "bg-primary-100";
     }
@@ -48,7 +59,14 @@ export default function Recommendations() {
   const handleRecommendationClick = (recommendation: Recommendation) => {
     if (recommendation.type === "existing_document" && recommendation.documentId) {
       navigate(`/documents/${recommendation.documentId}`);
+    } else if (recommendation.type === "info" || recommendation.type === "quota_error" || recommendation.type === "error") {
+      // For info and error messages, do nothing on click
+      return;
     }
+  };
+  
+  const isClickable = (type: string): boolean => {
+    return !["info", "error", "quota_error"].includes(type);
   };
   
   if (error) {
@@ -81,7 +99,7 @@ export default function Recommendations() {
             {recommendations.map((recommendation, index) => (
               <div
                 key={index}
-                className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                className={`border border-gray-200 rounded-lg p-3 ${isClickable(recommendation.type) ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
                 onClick={() => handleRecommendationClick(recommendation)}
               >
                 <div className="flex items-start space-x-3">

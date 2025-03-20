@@ -471,19 +471,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all tags used by the user
       const userTags = await storage.getTagsByUserId(userId);
       
-      // Generate recommendations
-      const recommendations = await generateRecommendations(
-        userId,
-        userDocuments.map(doc => ({
-          id: doc.id,
-          title: doc.title,
-          tags: doc.tags.map(tag => tag.name)
-        })),
-        userTags.map(tag => tag.name)
-      );
+      // Check if we have documents to generate recommendations from
+      if (userDocuments.length === 0) {
+        return res.json([
+          {
+            type: "info",
+            title: "Add some documents",
+            description: "Upload or create documents to get personalized recommendations.",
+            relevance: 1.0
+          }
+        ]);
+      }
       
-      res.json(recommendations);
+      try {
+        // Generate recommendations
+        const recommendations = await generateRecommendations(
+          userId,
+          userDocuments.map(doc => ({
+            id: doc.id,
+            title: doc.title,
+            tags: doc.tags.map(tag => tag.name)
+          })),
+          userTags.map(tag => tag.name)
+        );
+        
+        res.json(recommendations);
+      } catch (apiError: any) {
+        console.error("Error generating recommendations:", apiError);
+        
+        // Check for OpenAI API quota errors
+        if (apiError.code === 'insufficient_quota' || 
+            (apiError.message && apiError.message.includes('quota'))) {
+          return res.json([
+            {
+              type: "quota_error",
+              title: "API Quota Exceeded",
+              description: "The AI service quota has been exceeded. Recommendations will be available later.",
+              relevance: 1.0
+            }
+          ]);
+        }
+        
+        // Generic error fallback
+        res.json([
+          {
+            type: "error",
+            title: "Recommendation Error",
+            description: "Could not generate recommendations at this time. Please try again later.",
+            relevance: 1.0
+          }
+        ]);
+      }
     } catch (error) {
+      console.error("Recommendations API error:", error);
       res.status(500).json({ message: "Failed to generate recommendations" });
     }
   });

@@ -54,6 +54,11 @@ export default function Recommendations() {
         return <BookOpen className={`${className} text-green-600`} />;
       case "task":
         return <LightbulbIcon className={`${className} text-purple-600`} />;
+      case "info":
+        return <LightbulbIcon className={`${className} text-blue-600`} />;
+      case "error":
+      case "quota_error":
+        return <LightbulbIcon className={`${className} text-amber-600`} />;
       default:
         return <FileText className={`${className} text-primary-600`} />;
     }
@@ -67,6 +72,12 @@ export default function Recommendations() {
         return "bg-green-100";
       case "task":
         return "bg-purple-100";
+      case "info":
+        return "bg-blue-100";
+      case "error":
+        return "bg-red-100";
+      case "quota_error":
+        return "bg-amber-100";
       default:
         return "bg-primary-100";
     }
@@ -75,7 +86,14 @@ export default function Recommendations() {
   const handleRecommendationClick = (recommendation: Recommendation) => {
     if (recommendation.type === "existing_document" && recommendation.documentId) {
       navigate(`/documents/${recommendation.documentId}`);
+    } else if (recommendation.type === "info" || recommendation.type === "quota_error" || recommendation.type === "error") {
+      // For info and error messages, do nothing on click
+      return;
     }
+  };
+  
+  const isClickable = (type: string): boolean => {
+    return !["info", "error", "quota_error"].includes(type);
   };
   
   // Filter recommendations based on active tab
@@ -153,6 +171,21 @@ export default function Recommendations() {
           <TabsTrigger value="task">
             Tasks ({countByType.task || 0})
           </TabsTrigger>
+          {(countByType.info || 0) > 0 && (
+            <TabsTrigger value="info">
+              Info ({countByType.info})
+            </TabsTrigger>
+          )}
+          {(countByType.error || 0) > 0 && (
+            <TabsTrigger value="error">
+              Errors ({countByType.error})
+            </TabsTrigger>
+          )}
+          {(countByType.quota_error || 0) > 0 && (
+            <TabsTrigger value="quota_error">
+              API Issues ({countByType.quota_error})
+            </TabsTrigger>
+          )}
         </TabsList>
         
         <TabsContent value={activeTab}>
@@ -181,7 +214,7 @@ export default function Recommendations() {
               {filteredRecommendations.map((recommendation, index) => (
                 <Card 
                   key={index}
-                  className={recommendation.type === "existing_document" && recommendation.documentId ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
+                  className={isClickable(recommendation.type) ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
                   onClick={() => handleRecommendationClick(recommendation)}
                 >
                   <CardHeader className="pb-2">
