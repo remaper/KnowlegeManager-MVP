@@ -112,10 +112,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Fix originalname encoding issue with Korean characters
+      let originalFileName = req.file.originalname;
+      
+      // Try to decode if it appears to be URL encoded
+      try {
+        if (/%[0-9A-F]{2}/i.test(originalFileName)) {
+          originalFileName = decodeURIComponent(originalFileName);
+        }
+      } catch (error) {
+        console.error("Error decoding filename:", error);
+      }
+      
       // Create document in storage
       const document = await storage.createDocument({
         userId,
-        title: title || req.file.originalname,
+        title: title || originalFileName,
         filename: req.file.filename,
         fileType: req.file.mimetype,
         category: documentCategory,
