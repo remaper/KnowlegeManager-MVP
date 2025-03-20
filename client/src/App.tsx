@@ -11,6 +11,7 @@ import SemanticNetwork from "@/pages/semantic-network";
 import OntologyPage from "@/pages/ontology";
 import Recommendations from "@/pages/recommendations";
 import { ProtectedRoute } from "./lib/protected-route";
+import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
   return (
@@ -30,8 +31,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
