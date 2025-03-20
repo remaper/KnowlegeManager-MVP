@@ -1,11 +1,10 @@
-
 {
   "users": [
     {
       "id": 1,
-      "username": "testuser",
+      "username": "test",
       "email": "test@example.com",
-      "password": "password123"
+      "password": "123456"
     }
   ],
   "documents": [
