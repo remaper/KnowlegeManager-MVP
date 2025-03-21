@@ -81,7 +81,7 @@ export default function SemanticNetwork() {
       const linkMap = new Map<string, SemanticLink>();
       links.forEach(link => {
         const key = `${Math.min(link.sourceDocumentId, link.targetDocumentId)}-${Math.max(link.sourceDocumentId, link.targetDocumentId)}`;
-        if (!linkMap.has(key) || link.strength > (linkMap.get(key)?.strength || 0)) {
+        if (!linkMap.has(key) || (link.strength ?? 0) > (linkMap.get(key)?.strength ?? 0)) {
           linkMap.set(key, link);
         }
       });
@@ -116,7 +116,7 @@ export default function SemanticNetwork() {
     const matchesLinkType = linkTypeFilter.length === 0 || 
       linkTypeFilter.includes(link.linkType);
     
-    const meetsStrengthThreshold = link.strength >= minStrength;
+    const meetsStrengthThreshold = (link.strength ?? 0) >= minStrength;
     
     return isDocumentIncluded && matchesLinkType && meetsStrengthThreshold;
   });
@@ -142,7 +142,7 @@ export default function SemanticNetwork() {
     source: link.sourceDocumentId.toString(),
     target: link.targetDocumentId.toString(),
     type: link.linkType,
-    strength: link.strength,
+    strength: link.strength ?? 0,
   }));
   
   // Handle link type filter toggle
@@ -210,8 +210,8 @@ export default function SemanticNetwork() {
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                      <SelectItem key={category ?? ""} value={category ?? ""}>
+                        {category ?? "Unknown"}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -333,7 +333,7 @@ export default function SemanticNetwork() {
                   <dt className="text-sm text-gray-500">Avg. Strength</dt>
                   <dd className="text-sm font-medium">
                     {graphLinks.length > 0
-                      ? (graphLinks.reduce((sum, link) => sum + (link.strength || 0), 0) / graphLinks.length).toFixed(1)
+                      ? (graphLinks.reduce((sum, link) => sum + (link.strength ?? 0), 0) / graphLinks.length).toFixed(1)
                       : "N/A"}
                   </dd>
                 </div>

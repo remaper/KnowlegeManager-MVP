@@ -125,8 +125,8 @@ export default function Priorities() {
                 <div key={priority.id} className="flex items-center">
                   <Checkbox
                     id={`priority-${priority.id}`}
-                    checked={priority.completed}
-                    onCheckedChange={() => handleCheckboxChange(priority.id, priority.completed)}
+                    checked={priority.completed ?? false}
+                    onCheckedChange={() => handleCheckboxChange(priority.id, priority.completed ?? false)}
                     className="h-4 w-4"
                   />
                   <div className="ml-3">
@@ -204,7 +204,7 @@ export default function Priorities() {
                   <FormItem>
                     <FormLabel>Due Date (Optional)</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

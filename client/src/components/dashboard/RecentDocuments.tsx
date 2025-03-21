@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
 export default function RecentDocuments() {
   const [, navigate] = useLocation();
@@ -30,6 +31,8 @@ export default function RecentDocuments() {
   const { data: documents, isLoading, error } = useQuery<DocumentWithTags[]>({
     queryKey: ["/api/documents"],
   });
+  
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   
   const getFileIcon = (fileType: string) => {
     if (fileType.includes("pdf")) return <FileText className="text-red-400" />;

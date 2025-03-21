@@ -128,7 +128,7 @@ export default function Documents() {
   });
   
   // Get unique categories for filter
-  const categories = Array.from(new Set(documents.map(doc => doc.category).filter(Boolean)));
+  const categories = Array.from(new Set(documents.map(doc => doc.category).filter((category): category is string => category !== null)));
   
   return (
     <Layout>

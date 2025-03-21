@@ -197,8 +197,8 @@ export default function DocumentDetail() {
   };
   
   // Prepare semantic network data
-  const networkNodes = [];
-  const networkLinks = [];
+  const networkNodes: { id: string; label: string; group: number }[] = [];
+  const networkLinks: { source: string; target: string; type?: string; strength?: number | null }[] = [];
   
   if (document && links.length > 0) {
     // Add the current document

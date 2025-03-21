@@ -37,7 +37,7 @@ export async function generateDocumentMetadata(
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const result = JSON.parse(response.choices[0].message.content ?? "{}");
 
     return {
       summary: result.summary,
@@ -109,7 +109,7 @@ export async function detectDocumentRelationships(
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const result = JSON.parse(response.choices[0].message.content ?? "{}");
     return Array.isArray(result) ? result : [];
   } catch (error: any) {
     console.error("Error detecting document relationships:", error);
@@ -167,7 +167,7 @@ export async function generateRecommendations(
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const result = JSON.parse(response.choices[0].message.content ?? "{}");
     return Array.isArray(result) ? result : [];
   } catch (error: any) {
     console.error("Error generating recommendations:", error);

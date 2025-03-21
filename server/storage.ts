@@ -10,8 +10,29 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const MemoryStore = createMemoryStore(session);
+
+const USERS_FILE = path.join(__dirname, 'users.json');
+
+function loadUsersFromFile() {
+  if (fs.existsSync(USERS_FILE)) {
+    const data = fs.readFileSync(USERS_FILE, 'utf-8');
+    return new Map(JSON.parse(data));
+  }
+  return new Map();
+}
+
+function saveUsersToFile(users: Map<number, User>) {
+  const data = JSON.stringify(Array.from(users.entries()));
+  fs.writeFileSync(USERS_FILE, data, 'utf-8');
+}
 
 export interface IStorage {
   // User operations
@@ -58,21 +79,21 @@ export interface IStorage {
   deletePriority(id: number): Promise<boolean>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private documents: Map<number, Document>;
-  private tags: Map<number, Tag>;
-  private documentTags: Map<number, DocumentTag>;
-  private semanticLinks: Map<number, SemanticLink>;
-  private ontologies: Map<number, Ontology>;
-  private priorities: Map<number, Priority>;
+  public users: Map<number, User> = loadUsersFromFile();
+  public documents: Map<number, Document>;
+  public tags: Map<number, Tag>;
+  public documentTags: Map<number, DocumentTag>;
+  public semanticLinks: Map<number, SemanticLink>;
+  public ontologies: Map<number, Ontology>;
+  public priorities: Map<number, Priority>;
   
-  sessionStore: session.SessionStore;
+  public sessionStore: session.Store;
   
-  private currentIds: {
+  public currentIds: {
     users: number;
     documents: number;
     tags: number;
@@ -83,7 +104,6 @@ export class MemStorage implements IStorage {
   };
 
   constructor() {
-    this.users = new Map();
     this.documents = new Map();
     this.tags = new Map();
     this.documentTags = new Map();
@@ -92,7 +112,7 @@ export class MemStorage implements IStorage {
     this.priorities = new Map();
     
     this.currentIds = {
-      users: 1,
+      users: this.users.size > 0 ? Math.max(...this.users.keys()) + 1 : 1,
       documents: 1,
       tags: 1,
       documentTags: 1,
@@ -112,22 +132,18 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username.toLowerCase() === username.toLowerCase()
-    );
+    return Array.from(this.users.values()).find(user => user.username === username);
   }
   
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email.toLowerCase() === email.toLowerCase()
-    );
+    return Array.from(this.users.values()).find(user => user.email === email);
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentIds.users++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createUser(user: InsertUser): Promise<User> {
+    const newUser: User = { id: this.currentIds.users++, ...user };
+    this.users.set(newUser.id, newUser);
+    saveUsersToFile(this.users);
+    return newUser;
   }
 
   // Document operations
@@ -176,7 +192,10 @@ export class MemStorage implements IStorage {
       ...insertDocument, 
       id,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      category: insertDocument.category ?? null,
+      summary: insertDocument.summary ?? null,
+      content: insertDocument.content ?? null
     };
     this.documents.set(id, document);
     return document;
@@ -313,7 +332,11 @@ export class MemStorage implements IStorage {
   
   async createSemanticLink(insertLink: InsertSemanticLink): Promise<SemanticLink> {
     const id = this.currentIds.semanticLinks++;
-    const link: SemanticLink = { ...insertLink, id };
+    const link: SemanticLink = { 
+      ...insertLink, 
+      id,
+      strength: insertLink.strength ?? null
+    };
     this.semanticLinks.set(id, link);
     return link;
   }
@@ -394,7 +417,10 @@ export class MemStorage implements IStorage {
     const priority: Priority = { 
       ...insertPriority, 
       id,
-      createdAt: now
+      createdAt: now,
+      description: insertPriority.description ?? null,
+      dueDate: insertPriority.dueDate ?? null,
+      completed: insertPriority.completed ?? null
     };
     this.priorities.set(id, priority);
     return priority;
@@ -438,7 +464,14 @@ export async function loadSeedData() {
   
   // Load documents
   for (const doc of seedData.documents) {
-    storage.documents.set(doc.id, doc);
+    storage.documents.set(doc.id, {
+      ...doc,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: doc.category ?? null,
+      summary: doc.summary ?? null,
+      content: doc.content ?? null
+    });
     storage.currentIds.documents = Math.max(storage.currentIds.documents, doc.id + 1);
   }
   
